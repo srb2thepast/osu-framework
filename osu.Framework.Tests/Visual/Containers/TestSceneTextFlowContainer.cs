@@ -124,6 +124,48 @@ namespace osu.Framework.Tests.Visual.Containers
         }
 
         [Test]
+        public void TestTextOverflow()
+        {
+            string overflowText = "LoremipsumdolorsitametconsecteturadipiscingelitIntegermattiseuturpisvitaeposuereOrcivariusnatoquepenatibusetmagnisdisparturientmontesnasceturridiculusmusEtiammaurisnibhfaucibusmaximusornareeuultricesutipsumProinrhoncusnuncetfaucibuspretiumnislnuncdapibusmassaetscelerisquenibhligulaidodioPraesentdapibusexsednuncegestasinplaceratrisusmattisNullasedligulavelitVestibulumauctorportaerosetcondimentumEtiamlaoreetnuncneclaciniapulvinarMaurishendreritmiataliquetcondimentumexexcursusdolornonportaeraterosidjustoCrasmalesuadatinciduntnuncattinciduntrisuseleifendidMaecenashendreritvenenatismietlobortisEtiamsemtortorelementumegetlacusnonportatristiquequamMorbisedlaciniaodioPhasellusutpretiumnuncFuscevitaemollismagnavelscelerisquedui";
+            AddStep("set overflow text", () => textContainer.Text = overflowText);
+            assertSpriteTextCount(overflowText.Length);
+
+
+            AddStep("set overflow text mid-sentence", () =>
+            {
+                textContainer.Text = "start/" + overflowText + "/end";
+            });
+            assertSpriteTextCount(overflowText.Length + 3);
+
+
+            AddStep("set relative width", () =>
+            {
+                topLevelContainer.AutoSizeAxes = textContainer.AutoSizeAxes = Axes.Y;
+                topLevelContainer.RelativeSizeAxes = textContainer.RelativeSizeAxes = Axes.X;
+                topLevelContainer.Width = textContainer.Width = 0.5f;
+                textContainer.Text = overflowText;
+            });
+            assertSpriteTextCount(overflowText.Length);
+
+            AddStep("set absolute width", () =>
+            {
+                topLevelContainer.AutoSizeAxes = textContainer.AutoSizeAxes = Axes.Y;
+                topLevelContainer.RelativeSizeAxes = textContainer.RelativeSizeAxes = Axes.None;
+                topLevelContainer.Width = textContainer.Width = 200f;
+                textContainer.Text = overflowText;
+            });
+            assertSpriteTextCount(overflowText.Length);
+
+            AddStep("set autosize width", () =>
+            {
+                topLevelContainer.RelativeSizeAxes = textContainer.RelativeSizeAxes = Axes.None;
+                topLevelContainer.AutoSizeAxes = textContainer.AutoSizeAxes = Axes.Both;
+                textContainer.Text = overflowText;
+            });
+            assertSpriteTextCount(1);
+        }
+
+        [Test]
         public void TestSizing()
         {
             AddStep("set relative width", () =>

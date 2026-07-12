@@ -3,8 +3,6 @@
 
 #nullable disable
 
-using osu.Framework.Caching;
-using osu.Framework.Graphics.Sprites;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -12,8 +10,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Caching;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Framework.Utils;
 using osuTK;
@@ -285,7 +285,24 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public void NewParagraph() => AddPart(new TextNewLine(true));
 
-        protected internal virtual SpriteText CreateSpriteText() => new SpriteText();
+        protected internal virtual SpriteText CreateSpriteText()
+        {
+            var text = new SpriteText();
+            return text;
+        }
+
+        public bool TextBoundsCheckable => !(Parent == null && RelativeSizeAxes.HasFlagFast(Axes.X) || AutoSizeAxes.HasFlagFast(Axes.X));
+
+        public bool TextExceedsBounds(SpriteText spriteText)
+        {
+            if (!TextBoundsCheckable)
+                throw new InvalidOperationException($"Cannot check sizes before this {nameof(TextFlowContainer)} recieves a Parent as it has {nameof(RelativeSizeAxes)} with {nameof(Axes.X)}.");
+            if (Flow.LoadState < LoadState.Ready)
+                throw new InvalidOperationException($"Cannot check sizes before this container's {nameof(InnerFlow)} is ready. Consider calling after this container becomes ready.");
+
+            Flow.LoadSpriteTextComponent(spriteText);
+            return spriteText.Width > Flow.ChildSize.X;
+        }
 
         internal void ApplyDefaultCreationParameters(SpriteText spriteText) => defaultCreationParameters?.Invoke(spriteText);
 
@@ -347,6 +364,11 @@ namespace osu.Framework.Graphics.Containers
 
         protected partial class InnerFlow : FillFlowContainer
         {
+            protected internal void LoadSpriteTextComponent(SpriteText item)
+            {
+                LoadComponent(item);
+            }
+
             private float firstLineIndent;
 
             /// <summary>

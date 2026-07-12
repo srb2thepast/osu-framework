@@ -73,12 +73,37 @@ namespace osu.Framework.Graphics.Containers
 
                     var textSprite = CreateSpriteText(textFlowContainer);
                     textSprite.Text = word;
-                    sprites.Add(textSprite);
+
+                    // Avoid trying to validate the spritetext if we don't know what the container's size will be
+                    if (textFlowContainer.TextBoundsCheckable)
+                        validateSpriteText(textSprite);
+                    else
+                        sprites.Add(textSprite);
                 }
 
                 first = false;
             }
 
+            void validateSpriteText(TSpriteText spriteText)
+            {
+                if (textFlowContainer.TextExceedsBounds(spriteText))
+                {
+                    spriteText.Dispose();
+
+                    // split
+                    foreach (char character in spriteText.Text.ToString())
+                    {
+                        var newSprite = CreateSpriteText(textFlowContainer);
+                        newSprite.Text = character.ToString();
+
+                        sprites.Add(newSprite);
+                    }
+                }
+                else
+                {
+                    sprites.Add(spriteText);
+                }
+            }
             return sprites;
         }
 
