@@ -124,7 +124,7 @@ namespace osu.Framework.Tests.Visual.Containers
         }
 
         [Test]
-        public void TestTextOverflow()
+        public void TestOverflowCharacterSplitting()
         {
             string overflowText = "LoremipsumdolorsitametconsecteturadipiscingelitIntegermattiseuturpisvitaeposuereOrcivariusnatoquepenatibusetmagnisdisparturientmontesnasceturridiculusmusEtiammaurisnibhfaucibusmaximusornareeuultricesutipsumProinrhoncusnuncetfaucibuspretiumnislnuncdapibusmassaetscelerisquenibhligulaidodioPraesentdapibusexsednuncegestasinplaceratrisusmattisNullasedligulavelitVestibulumauctorportaerosetcondimentumEtiamlaoreetnuncneclaciniapulvinarMaurishendreritmiataliquetcondimentumexexcursusdolornonportaeraterosidjustoCrasmalesuadatinciduntnuncattinciduntrisuseleifendidMaecenashendreritvenenatismietlobortisEtiamsemtortorelementumegetlacusnonportatristiquequamMorbisedlaciniaodioPhasellusutpretiumnuncFuscevitaemollismagnavelscelerisquedui";
             AddStep("set overflow text", () => textContainer.Text = overflowText);

@@ -194,7 +194,6 @@ namespace osu.Framework.Graphics.Containers
             base.LoadAsyncComplete();
 
             localisationParameters.Value = Localisation.CurrentParameters.Value;
-            RecreateAllParts();
         }
 
         protected override void LoadComplete()
@@ -203,6 +202,7 @@ namespace osu.Framework.Graphics.Containers
 
             localisationParameters.BindValueChanged(_ => partsCache.Invalidate());
             ((IBindable<LocalisationParameters>)localisationParameters).BindTo(Localisation.CurrentParameters);
+            RecreateAllParts();
         }
 
         protected override void Update()
@@ -285,23 +285,22 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public void NewParagraph() => AddPart(new TextNewLine(true));
 
-        protected internal virtual SpriteText CreateSpriteText()
-        {
-            var text = new SpriteText();
-            return text;
-        }
+        protected internal virtual SpriteText CreateSpriteText() => new SpriteText();
 
-        public bool TextBoundsCheckable => !(Parent == null && RelativeSizeAxes.HasFlagFast(Axes.X) || AutoSizeAxes.HasFlagFast(Axes.X));
+        public bool CanCheckTextFits => AutoSizeAxes.HasFlagFast(Axes.X) || !RelativeSizeAxes.HasFlagFast(Axes.X) || Parent != null;
 
-        public bool TextExceedsBounds(SpriteText spriteText)
+        public bool TextFitsInFlow(SpriteText spriteText)
         {
-            if (!TextBoundsCheckable)
-                throw new InvalidOperationException($"Cannot check sizes before this {nameof(TextFlowContainer)} recieves a Parent as it has {nameof(RelativeSizeAxes)} with {nameof(Axes.X)}.");
+            if (AutoSizeAxes.HasFlagFast(Axes.X))
+                return true;
+            if (!CanCheckTextFits)
+                throw new InvalidOperationException($"Cannot invoke {nameof(TextFitsInFlow)} before this {nameof(TextFlowContainer)} has applied its {Axes.X}. Consider checking {nameof(CanCheckTextFits)} prior to calling.");
             if (Flow.LoadState < LoadState.Ready)
-                throw new InvalidOperationException($"Cannot check sizes before this container's {nameof(InnerFlow)} is ready. Consider calling after this container becomes ready.");
+                throw new InvalidOperationException($"Cannot invoke {nameof(TextFitsInFlow)} before this container's {nameof(InnerFlow)} is ready.");
+
 
             Flow.LoadSpriteTextComponent(spriteText);
-            return spriteText.Width > Flow.ChildSize.X;
+            return spriteText.Width <= Flow.ChildSize.X;
         }
 
         internal void ApplyDefaultCreationParameters(SpriteText spriteText) => defaultCreationParameters?.Invoke(spriteText);
